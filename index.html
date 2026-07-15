@@ -1,0 +1,1683 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>+Rikox - Arepas, Picadas y Algo Más</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FF9500;
+            --dark: #1a1a1a;
+            --light: #ffffff;
+            --text: #f0f0f0;
+            --border: #2a2a2a;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: #000000;
+            border-bottom: 2px solid var(--primary);
+            padding: 0.3rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+            z-index: 1000;
+            box-shadow: 0 3px 12px rgba(255, 149, 0, 0.2);
+        }
+
+        .logo {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        /* NAV CENTRAL */
+        .main-nav {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.8rem;
+        }
+
+        .nav-link {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1rem;
+            letter-spacing: 0.02em;
+            position: relative;
+            transition: color 0.3s ease;
+            padding: 0.3rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -4px;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .nav-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 0.7rem 1.6rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(255, 149, 0, 0.5);
+        }
+
+        .location-btn {
+            background: none;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 0.6rem 1.4rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .location-btn:hover {
+            background: var(--primary);
+            color: var(--dark);
+            transform: scale(1.05);
+        }
+
+        .cart-icon {
+            cursor: pointer;
+            background: var(--primary);
+            color: var(--dark);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 149, 0, 0.4);
+        }
+
+        .cart-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .cart-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 149, 0, 0.6);
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff0000;
+            color: white;
+            width: 19px;
+            height: 19px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* HERO - SCROLL LATERAL CON DESVANECIMIENTO */
+        .hero {
+            margin-top: 58px;
+            position: relative;
+            height: 200vh;          /* distancia de scroll para el efecto */
+            background: #000000;
+        }
+
+        .hero-sticky {
+            position: sticky;
+            top: 58px;
+            height: calc(100vh - 58px);
+            overflow: hidden;
+            border-bottom: 5px solid var(--primary);
+        }
+
+        .hero-slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            will-change: transform, opacity;
+        }
+
+        /* La imagen 1 se desvanece; la imagen 2 entra lateralmente desde la derecha */
+        .slide-1 { z-index: 1; }
+        .slide-2 { z-index: 2; transform: translateX(100%); }
+
+        .hero-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        /* Texto superpuesto en el espacio negro inferior-izquierdo de la imagen 2.
+           La opacidad/desplazamiento se controlan por JS según el progreso del scroll. */
+        .hero-overlay {
+            position: absolute;
+            left: 0;
+            bottom: 16%;
+            width: 46%;
+            padding: 0 2rem 0 4rem;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 0.12s linear;
+        }
+
+        .hero-overlay h1 {
+            font-size: 2.8rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 1);
+            font-weight: 900;
+            line-height: 1.1;
+        }
+
+        .hero-overlay p {
+            font-size: 1.15rem;
+            color: var(--light);
+            line-height: 1.5;
+            text-shadow: 1px 1px 6px rgba(0, 0, 0, 1);
+        }
+
+        /* Indicador de scroll en la primera imagen */
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            z-index: 3;
+            animation: bounce 1.8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .scroll-hint svg {
+            width: 28px;
+            height: 28px;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(10px); }
+        }
+
+        /* MENU SECTION */
+        .menu-section {
+            background-color: #0d0d0d;
+            background-image: url('./outputs/IMG 4.png');
+            background-repeat: repeat-y;
+            background-size: 100% auto;
+            background-position: top center;
+        }
+
+        .menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            position: relative;
+        }
+
+        .menu-heading {
+            font-size: 4rem;
+            color: var(--primary);
+            text-align: center;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            margin-bottom: 2.5rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+            position: relative;
+        }
+
+        .menu-heading::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        .category-title {
+            font-size: 2.2rem;
+            color: var(--primary);
+            text-align: center;
+            margin: 3rem 0 2rem 0;
+            padding: 1rem;
+            border: 3px solid var(--primary);
+            border-radius: 10px;
+            position: relative;
+            animation: fadeInScale 0.6s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .category-title:hover {
+            transform: scale(1.02);
+        }
+
+        .category-title .arrow {
+            transition: transform 0.3s ease;
+            font-size: 1.5rem;
+        }
+
+        .category-title.collapsed .arrow {
+            transform: rotate(-90deg);
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+            max-height: 6000px;
+            overflow: hidden;
+            transition: max-height 0.5s ease, opacity 0.5s ease;
+            opacity: 1;
+        }
+
+        .items-grid.hidden {
+            max-height: 0;
+            opacity: 0;
+            margin-bottom: 0;
+        }
+
+        .item-card {
+            background: linear-gradient(135deg, rgba(255, 149, 0, 0.1) 0%, rgba(255, 149, 0, 0.05) 100%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 149, 0, 0.15);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .item-card:hover::before {
+            left: 0;
+        }
+
+        .item-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(255, 149, 0, 0.3);
+        }
+
+        .item-name {
+            font-size: 1.3rem;
+            color: var(--primary);
+            font-weight: bold;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+
+        .item-description {
+            font-size: 0.95rem;
+            color: #b0b0b0;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 149, 0, 0.3);
+        }
+
+        .item-price {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        /* STEPPER EN TARJETA */
+        .item-stepper {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .item-stepper .qty-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .item-stepper .qty-btn:hover:not(:disabled) {
+            transform: scale(1.1);
+        }
+
+        .item-stepper .qty-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .item-stepper .qty-num {
+            min-width: 28px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .add-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 5px 15px rgba(255, 149, 0, 0.4);
+        }
+
+        .add-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* CART MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.85);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes popInCenter {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .modal.active {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .modal-content {
+            background: var(--dark);
+            border-left: 5px solid var(--primary);
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .cart-items {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+
+        .cart-item {
+            background: rgba(255, 149, 0, 0.1);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 8px;
+            animation: slideInLeft 0.3s ease;
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .cart-item-name {
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .cart-item-price {
+            color: var(--text);
+        }
+
+        .quantity-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .qty-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .qty-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .remove-btn {
+            background: #ff3333;
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .remove-btn:hover {
+            background: #cc0000;
+        }
+
+        .empty-cart {
+            text-align: center;
+            color: #888;
+            padding: 2rem 0;
+        }
+
+        .cart-summary {
+            border-top: 2px solid var(--primary);
+            padding-top: 1rem;
+            margin-top: 1rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            color: var(--text);
+        }
+
+        .summary-row.total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--primary);
+            border-top: 1px solid rgba(255, 149, 0, 0.3);
+            padding-top: 0.8rem;
+            margin-top: 0.8rem;
+        }
+
+        .checkout-btn {
+            background: var(--primary);
+            color: var(--dark);
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .checkout-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 149, 0, 0.5);
+        }
+
+        .checkout-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* CHECKOUT MODAL */
+        .checkout-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .checkout-modal.active {
+            display: flex;
+        }
+
+        .checkout-form {
+            background: var(--dark);
+            border: 3px solid var(--primary);
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            animation: slideInScale 0.3s ease;
+        }
+
+        .checkout-form h2 {
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            color: var(--primary);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 149, 0, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            color: var(--light);
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #666;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 149, 0, 0.5);
+            border-color: var(--primary);
+        }
+
+        /* DELIVERY SWITCH (estilo segmentado) */
+        .delivery-switch {
+            display: flex;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 4px;
+            gap: 4px;
+            margin-top: 0.5rem;
+        }
+
+        .switch-option {
+            flex: 1;
+            background: none;
+            border: none;
+            color: #b0b0b0;
+            font-weight: bold;
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0.7rem 1rem;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .switch-option:hover {
+            color: var(--light);
+        }
+
+        .switch-option.active {
+            background: var(--primary);
+            color: var(--dark);
+            box-shadow: 0 2px 8px rgba(255, 149, 0, 0.4);
+        }
+
+        .form-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .form-buttons button {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: var(--dark);
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(255, 149, 0, 0.5);
+        }
+
+        .cancel-btn {
+            background: #333;
+            color: var(--text);
+            border: 1px solid var(--primary);
+        }
+
+        .cancel-btn:hover {
+            background: #444;
+        }
+
+        /* SUCCESS MESSAGE */
+        .success-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--primary);
+            color: var(--dark);
+            padding: 2rem 3rem;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 4000;
+            animation: popInCenter 0.5s ease;
+        }
+
+        .success-message.active {
+            display: block;
+        }
+
+        .success-message h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .success-message p {
+            font-size: 1rem;
+        }
+
+        /* UBICACIÓN */
+        .location-section {
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+            border-top: 5px solid var(--primary);
+            padding: 4rem 2rem;
+        }
+
+        .section-heading {
+            font-size: 3rem;
+            color: var(--primary);
+            text-align: center;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            margin-bottom: 3rem;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        .section-heading::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: var(--primary);
+            margin: 1rem auto 0;
+            border-radius: 2px;
+        }
+
+        .location-grid {
+            max-width: 1100px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        .location-photo {
+            display: flex;
+            justify-content: center;
+        }
+
+        .location-photo img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 640px;
+            display: block;
+            border-radius: 16px;
+            border: 3px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(255, 149, 0, 0.25);
+        }
+
+        .location-info h2 {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .location-sub {
+            color: #b0b0b0;
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+            line-height: 1.5;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-icon {
+            flex-shrink: 0;
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-icon svg {
+            width: 22px;
+            height: 22px;
+        }
+
+        .info-row strong {
+            display: block;
+            color: var(--primary);
+            font-size: 1.05rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .info-row p {
+            color: var(--text);
+            line-height: 1.4;
+        }
+
+        .maps-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: var(--primary);
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.9rem 1.8rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+            font-size: 1.05rem;
+        }
+
+        .maps-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .maps-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(255, 149, 0, 0.5);
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--dark);
+            border-top: 3px solid var(--primary);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+        }
+
+        .footer-contact {
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-contact a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .footer-contact a:hover {
+            text-decoration: underline;
+            transform: scale(1.05);
+        }
+
+        .footer-text {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* SCROLL ANIMATIONS */
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .scroll-animate.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            header {
+                padding: 0.7rem 1rem;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                gap: 0.8rem;
+            }
+
+            .main-nav {
+                order: 3;
+                flex-basis: 100%;
+                gap: 1rem;
+                flex-wrap: wrap;
+            }
+
+            .nav-btn, .location-btn {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-link {
+                font-size: 0.9rem;
+            }
+
+            .logo {
+                height: 42px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-overlay {
+                width: 100%;
+                bottom: 8%;
+                padding: 0 1.5rem;
+                text-shadow: none;
+            }
+
+            .hero-overlay h1 {
+                font-size: 1.6rem;
+            }
+
+            .hero-overlay p {
+                font-size: 0.95rem;
+            }
+
+            .menu-heading {
+                font-size: 2.8rem;
+            }
+
+            .location-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .section-heading {
+                font-size: 2.2rem;
+            }
+
+            .location-photo img {
+                max-height: 380px;
+            }
+
+            .items-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                max-width: 100%;
+            }
+
+            .category-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">
+            <img src="./outputs/IMG 3.png" alt="Rikox Logo">
+        </div>
+
+        <nav class="main-nav">
+            <a href="#" class="nav-link" onclick="scrollToTop(); return false;">Inicio</a>
+            <a href="#" class="nav-link" onclick="scrollToMenu(); return false;">Menú</a>
+            <a href="#" class="nav-link" onclick="handleLocation(); return false;">Ubicación</a>
+            <a href="#contacto" class="nav-link">Contacto</a>
+        </nav>
+
+        <div class="cart-icon" onclick="toggleCart()">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            <div class="cart-count" id="cartCount">0</div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+        <div class="hero-sticky">
+            <div class="hero-slide slide-1" id="slide1">
+                <img class="hero-img" src="./outputs/IMG 6.png" alt="+Rikox - Arepas, Picadas y Algo Más">
+            </div>
+            <div class="hero-slide slide-2" id="slide2">
+                <img class="hero-img" src="./outputs/IMG 2.png" alt="Productos +Rikox">
+                <div class="hero-overlay">
+                    <h1>EL SABOR COLOMBIANO QUE ESTABAS BUSCANDO</h1>
+                    <p>Arepas, picadas y comidas rápidas hechas con el autentico sabor Colombiano</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MENU -->
+    <div class="menu-section">
+    <div class="menu-container">
+        <h1 class="menu-heading">MENÚ</h1>
+
+        <!-- AREPAS SECTION -->
+        <h2 class="category-title collapsed" onclick="toggleCategory(this, 'arepasGrid')"><span class="arrow">▼</span>AREPAS</h2>
+        <div class="items-grid hidden" id="arepasGrid"></div>
+
+        <!-- BEBIDAS SECTION -->
+        <h2 class="category-title collapsed" onclick="toggleCategory(this, 'bebidasGrid')"><span class="arrow">▼</span>BEBIDAS</h2>
+        <div class="items-grid hidden" id="bebidasGrid"></div>
+
+        <!-- PICADAS SECTION -->
+        <h2 class="category-title collapsed" onclick="toggleCategory(this, 'picadasGrid')"><span class="arrow">▼</span>PICADAS</h2>
+        <div class="items-grid hidden" id="picadasGrid"></div>
+
+        <!-- CHORIPANES SECTION -->
+        <h2 class="category-title collapsed" onclick="toggleCategory(this, 'choripantGrid')"><span class="arrow">▼</span>CHORIPANES</h2>
+        <div class="items-grid hidden" id="choripantGrid"></div>
+    </div>
+    </div>
+
+    <!-- UBICACIÓN -->
+    <section class="location-section" id="ubicacion">
+        <h1 class="section-heading">NUESTRA UBICACIÓN</h1>
+        <div class="location-grid">
+            <div class="location-photo">
+                <img src="./outputs/IMG 7.png" alt="Local +Rikox">
+            </div>
+            <div class="location-info">
+                <h2>¡Ven a visitarnos!</h2>
+                <p class="location-sub">Te esperamos con el auténtico sabor colombiano en nuestro local.</p>
+
+                <div class="info-row">
+                    <span class="info-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </span>
+                    <div>
+                        <strong>Dirección</strong>
+                        <p id="locDireccion">Carrera 92 # 4-64, Barrio Meléndez, Cali</p>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    </span>
+                    <div>
+                        <strong>Horario</strong>
+                        <p>Lunes a Domingo: 12:00 pm - 10:00 pm</p>
+                    </div>
+                </div>
+
+                <div class="info-row">
+                    <span class="info-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </span>
+                    <div>
+                        <strong>Teléfono / WhatsApp</strong>
+                        <p>+57 313 271 2410</p>
+                    </div>
+                </div>
+
+                <a class="maps-btn" href="https://www.google.com/maps/place/Cra.+92+%23+4-64,+Horzonte,+Cali,+Valle+del+Cauca/@3.3770018,-76.5489442,17z/data=!3m1!4b1!4m6!3m5!1s0x8e30a162fb73b137:0x26b1084bfe342ce7!8m2!3d3.3770018!4d-76.5463693!16s%2Fg%2F11fsmx0fmh?entry=ttu" target="_blank">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    Cómo llegar
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- CART MODAL -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Tu Carrito</h2>
+                <button class="close-btn" onclick="toggleCart()">✕</button>
+            </div>
+            <div class="cart-items" id="cartItems">
+                <div class="empty-cart">Tu carrito está vacío</div>
+            </div>
+            <div class="cart-summary">
+                <div class="summary-row total">
+                    <span>Total:</span>
+                    <span id="total">$0</span>
+                </div>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn" onclick="goToCheckout()">Procesar Pedido</button>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL -->
+    <div class="checkout-modal" id="checkoutModal">
+        <div class="checkout-form">
+            <h2>Tu Pedido</h2>
+            <form id="checkoutForm" onsubmit="submitOrder(event)">
+                <div class="form-group">
+                    <label>Nombre *</label>
+                    <input type="text" id="nombreField" required placeholder="Tu nombre">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono *</label>
+                    <input type="tel" id="telefonoField" required placeholder="Tu teléfono (ej: 313 271 2410)">
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Entrega *</label>
+                    <div class="delivery-switch" id="deliverySwitch">
+                        <button type="button" class="switch-option" data-value="domicilio" onclick="selectDelivery('domicilio')">A Domicilio</button>
+                        <button type="button" class="switch-option" data-value="recoger" onclick="selectDelivery('recoger')">Para Recoger</button>
+                    </div>
+                    <input type="hidden" id="tipoEntregaField" value="">
+                </div>
+
+                <div id="domicilioOptions" style="display: none;">
+                    <div class="form-group">
+                        <label>Dirección *</label>
+                        <input type="text" id="direccionField" placeholder="Dirección de entrega">
+                    </div>
+                </div>
+
+                <div id="recogerOptions" style="display: none;">
+                    <div class="form-group">
+                        <label>Apellido *</label>
+                        <input type="text" id="apellidoField" placeholder="Tu apellido">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora de Recogida *</label>
+                        <input type="time" id="horaRecogidaField">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Notas Adicionales</label>
+                    <textarea id="notasField" placeholder="Cambios o preferencias especiales..." rows="3"></textarea>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="submit-btn">Enviar Pedido</button>
+                    <button type="button" class="cancel-btn" onclick="closeCheckout()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- SUCCESS MESSAGE -->
+    <div class="success-message" id="successMessage">
+        <h3>✅ ¡Pedido Recibido!</h3>
+        <p>Tu pedido ha sido enviado exitosamente</p>
+        <p style="margin-top: 1rem; font-size: 0.9rem;">Nos contactaremos pronto para confirmar</p>
+    </div>
+
+    <!-- FOOTER -->
+    <footer id="contacto">
+        <div class="footer-contact">
+            <p style="margin-bottom: 1rem; color: var(--primary); font-weight: bold;">¡PÍDENOS!</p>
+            <a href="https://wa.me/573132712410" target="_blank">WhatsApp: 313 271 2410</a>
+            <a href="https://instagram.com/rikox_ayp" target="_blank">Instagram: @Rikox_AyP</a>
+        </div>
+        <p class="footer-text">SABOR QUE ENAMORA</p>
+        <p class="footer-text" style="margin-top: 0.5rem;">© 2024 +Rikox - Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+        // DATOS DEL MENÚ
+        const menu = {
+            arepas: [
+                { id: 1, name: "La Calleja", desc: "Carne desmechada + Lechuga + Queso + Huevo de Codorniz", price: 11000 },
+                { id: 2, name: "La Consentida", desc: "Pollo desmenuzado + Queso + Huevo de Codorniz", price: 10000 },
+                { id: 3, name: "La Pecadora", desc: "Carne + Pollo + Queso + Chicharrón + Huevo de Codorniz", price: 12000 },
+                { id: 4, name: "La Bandida", desc: "Carne + Chorizo + Queso + Huevo de Codorniz + Maicitos", price: 15000 },
+                { id: 5, name: "La Traviesa", desc: "Pollo + Chorizo + Queso + Huevo de Codorniz", price: 14000 },
+                { id: 6, name: "La Vagabunda", desc: "Carne + Pollo + Chorizo + Queso + Huevo de Codorniz", price: 17000 },
+                { id: 7, name: "La Melosa", desc: "Carne + Plátano maduro + Queso + Huevo de Codorniz", price: 13000 },
+                { id: 8, name: "La Caprichosa", desc: "Pollo + Champiñones + Queso + Huevo de Codorniz", price: 12000 },
+                { id: 9, name: "La Coqueta", desc: "Pollo + Tocineta + Queso + Huevo de Codorniz", price: 11000 },
+                { id: 10, name: "La Atrevida", desc: "Carne + Pollo + Costillas BBQ + Queso + Huevo de Codorniz", price: 16000 },
+                { id: 11, name: "La Inquieta", desc: "Chorizo + Jamón + Queso + Huevo de Codorniz", price: 10000 },
+                { id: 12, name: "La Enamorada", desc: "Chorizo + Jamón + Queso + Tocineta + Huevo de Codorniz", price: 11000 },
+                { id: 13, name: "La Fogosa", desc: "Plátano maduro + Doble Queso + Champiñones + Huevo de Codorniz", price: 2500 },
+                { id: 14, name: "La Sinvergueza", desc: "Huevo Batido + Chorizo + Jamón + Queso + Huevo de Codorniz", price: 11000 },
+                { id: 15, name: "La Aventurera", desc: "Jamón + Queso + Huevo de Codorniz", price: 3500 },
+                { id: 16, name: "La Estrellada", desc: "Huevo Batido + Huevo de Codorniz", price: 4500 },
+                { id: 17, name: "La Mexicana", desc: "Carne + Guacamole + Queso + Huevo de Codorniz", price: 12000 },
+                { id: 18, name: "La Quesuda", desc: "Queso + Huevo de Codorniz", price: 3000 },
+                { id: 19, name: "La +Rikox", desc: "Carne + Chicharrón + Plátano + Jamón + Tocineta + Lechuga + Huevo", price: 17000 },
+                { id: 20, name: "La Rebelde", desc: "Lechuga + Carne Hamburguesa + Queso + Jamón + Huevo + Maicitos", price: 14000 },
+                { id: 21, name: "La Malandra", desc: "Chicharrón + Carne + Queso + Huevo de Codorniz", price: 14000 },
+                { id: 22, name: "La Tropical", desc: "Chorizo + Piña + Jamón + Queso + Huevo de Codorniz", price: 14000 },
+                { id: 23, name: "La Patrona", desc: "Carne + Pollo + Chorizo + Jamón + Queso + Tocineta + Huevo", price: 18000 },
+                { id: 24, name: "La Vegetariana", desc: "Plátano maduro + Doble Queso + Champiñones + Huevo", price: 11000 },
+            ],
+            bebidas: [
+                { id: 101, name: "Jugo Natural en Agua", desc: "Recién exprimido", price: 6000 },
+                { id: 102, name: "Jugo Natural en Leche", desc: "Cremoso y nutritivo", price: 8000 },
+                { id: 103, name: "Limonada Natural", desc: "Refrescante", price: 6000 },
+                { id: 104, name: "Limonada de Coco", desc: "Tropical y deliciosa", price: 8000 },
+                { id: 105, name: "Limonada Cerezada", desc: "Especial +Rikox", price: 8000 },
+                { id: 106, name: "Jugo Hit", desc: "Rápido y energético", price: 4000 },
+                { id: 107, name: "Gaseosa Personal", desc: "Varias opciones", price: 3500 },
+                { id: 108, name: "Cerveza Poker", desc: "Botella", price: 3500 },
+                { id: 109, name: "Cerveza Club Colombia", desc: "Botella", price: 4500 },
+                { id: 110, name: "Cerveza Corona", desc: "Premium", price: 6000 },
+            ],
+            picadas: [
+                { id: 201, name: "Picada + Rikox", desc: "Para 3 personas - Carne + Costilla + Chicharrón + Plátano + Pollo + Rellena + Chorizo + Papa", price: 45000, personas: "3 personas" },
+                { id: 202, name: "Picada + Rikox", desc: "Para 6 personas - Toda la variedad", price: 85000, personas: "6 personas" },
+            ],
+            choripanes: [
+                { id: 301, name: "Choripam", desc: "Chorizo + Ripio + Jamón + Queso + Tocineta", price: 11000 },
+                { id: 302, name: "Chorimix", desc: "Chorizo + Carne + Pollo + Jamón + Queso + Tocineta + Ripio + Salsa Criolla", price: 15000 },
+            ]
+        };
+
+        let cart = [];
+
+        // HERO SCROLL - efecto lateral: la imagen 1 se desvanece y la imagen 2
+        // entra deslizándose desde la derecha, según el progreso del scroll.
+        function initHeroScroll() {
+            const hero = document.getElementById('hero');
+            const slide1 = document.getElementById('slide1');
+            const slide2 = document.getElementById('slide2');
+            if (!hero || !slide1 || !slide2) return;
+            const overlay = slide2.querySelector('.hero-overlay');
+
+            function update() {
+                const total = hero.offsetHeight - window.innerHeight;
+                const scrolled = Math.min(Math.max(-hero.getBoundingClientRect().top, 0), total);
+                const p = total > 0 ? scrolled / total : 0;
+
+                // Imagen 1: se desvanece y se desliza un poco a la izquierda
+                slide1.style.opacity = (1 - p).toFixed(3);
+                slide1.style.transform = `translateX(${(-p * 20).toFixed(2)}%)`;
+
+                // Imagen 2: entra lateralmente desde la derecha
+                slide2.style.transform = `translateX(${((1 - p) * 100).toFixed(2)}%)`;
+
+                // Texto de la imagen 2: aparece pronto y se intensifica al deslizar
+                if (overlay) {
+                    const t = Math.min(Math.max((p - 0.05) / 0.45, 0), 1);
+                    overlay.style.opacity = t.toFixed(3);
+                    overlay.style.transform = `translateX(${(-30 * (1 - t)).toFixed(1)}px)`;
+                }
+            }
+
+            window.addEventListener('scroll', update, { passive: true });
+            window.addEventListener('resize', update);
+            update();
+        }
+
+        function scrollToMenu() {
+            const menuContainer = document.querySelector('.menu-container');
+            menuContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function handleLocation() {
+            document.getElementById('ubicacion').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // RENDERIZAR MENÚ
+        function renderMenu() {
+            renderCategory('arepas', 'arepasGrid');
+            renderCategory('bebidas', 'bebidasGrid');
+            renderCategory('picadas', 'picadasGrid');
+            renderCategory('choripanes', 'choripantGrid');
+        }
+
+        function renderCategory(category, gridId) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = menu[category].map(item => {
+                const qty = getSelectedQty(item.id);
+                const safeName = item.name.replace(/'/g, "\\'");
+
+                return `
+                    <div class="item-card">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-description">${item.desc}${item.personas ? '<br><strong>' + item.personas + '</strong>' : ''}</div>
+                        <div class="item-footer">
+                            <div class="item-price">$${item.price.toLocaleString('es-CO')}</div>
+                            <div class="item-stepper">
+                                <button class="qty-btn minus" id="minus-${item.id}" ${qty <= 1 ? 'disabled' : ''} onclick="changeSelectedQty(${item.id}, -1)">−</button>
+                                <span class="qty-num" id="qty-${item.id}">${qty}</span>
+                                <button class="qty-btn plus" onclick="changeSelectedQty(${item.id}, 1)">+</button>
+                            </div>
+                        </div>
+                        <button class="add-btn" onclick="addSelectedToCart(${item.id}, '${safeName}', ${item.price})">Agregar</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // CANTIDAD LOCAL POR TARJETA (no se agrega al carrito hasta pulsar "Agregar")
+        const selectedQty = {};
+
+        function getSelectedQty(id) {
+            return selectedQty[id] || 1;
+        }
+
+        function changeSelectedQty(id, change) {
+            const nueva = Math.max(1, getSelectedQty(id) + change);
+            selectedQty[id] = nueva;
+            const span = document.getElementById('qty-' + id);
+            const minus = document.getElementById('minus-' + id);
+            if (span) span.textContent = nueva;
+            if (minus) minus.disabled = nueva <= 1;
+        }
+
+        function addSelectedToCart(id, name, price) {
+            const qty = getSelectedQty(id);
+            const existing = cart.find(item => item.id === id);
+            if (existing) {
+                existing.quantity += qty;
+            } else {
+                cart.push({ id, name, price, quantity: qty });
+            }
+            // Reiniciar la cantidad seleccionada de la tarjeta a 1
+            selectedQty[id] = 1;
+            const span = document.getElementById('qty-' + id);
+            const minus = document.getElementById('minus-' + id);
+            if (span) span.textContent = 1;
+            if (minus) minus.disabled = true;
+
+            updateCart();
+            showAddedNotification();
+        }
+
+        // CARRITO
+        function updateCart() {
+            updateCartCount();
+            renderCartItems();
+            calculateTotals();
+        }
+
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="empty-cart">Tu carrito está vacío</div>';
+                return;
+            }
+
+            container.innerHTML = cart.map((item, index) => `
+                <div class="cart-item">
+                    <div class="cart-item-name">${item.name}</div>
+                    <div class="cart-item-details">
+                        <span class="cart-item-price">$${item.price.toLocaleString('es-CO')}</span>
+                    </div>
+                    <div class="quantity-controls">
+                        <button class="qty-btn" onclick="updateQuantity(${index}, -1)">−</button>
+                        <span style="flex: 1; text-align: center; color: var(--primary);">${item.quantity}</span>
+                        <button class="qty-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                        <button class="remove-btn" onclick="removeFromCart(${index})">Eliminar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateQuantity(index, change) {
+            cart[index].quantity += change;
+            if (cart[index].quantity <= 0) {
+                removeFromCart(index);
+            } else {
+                updateCart();
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCart();
+        }
+
+        function calculateTotals() {
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            document.getElementById('total').textContent = '$' + total.toLocaleString('es-CO');
+
+            document.getElementById('checkoutBtn').disabled = cart.length === 0;
+        }
+
+        function toggleCart() {
+            document.getElementById('cartModal').classList.toggle('active');
+        }
+
+        function goToCheckout() {
+            if (cart.length === 0) return;
+            document.getElementById('cartModal').classList.remove('active');
+            document.getElementById('checkoutModal').classList.add('active');
+        }
+
+        function closeCheckout() {
+            document.getElementById('checkoutModal').classList.remove('active');
+        }
+
+        function submitOrder(e) {
+            e.preventDefault();
+
+            const nombre = document.getElementById('nombreField').value;
+            const telefono = document.getElementById('telefonoField').value;
+            const tipoEntrega = document.getElementById('tipoEntregaField').value;
+            const notas = document.getElementById('notasField').value;
+
+            if (!tipoEntrega) {
+                alert('Por favor selecciona el tipo de entrega (A Domicilio o Para Recoger).');
+                return;
+            }
+
+            let detallesEntrega = '';
+            if (tipoEntrega === 'domicilio') {
+                const direccion = document.getElementById('direccionField').value;
+                detallesEntrega = `Dirección: ${direccion}`;
+            } else {
+                const apellido = document.getElementById('apellidoField').value;
+                const horaRecogida = document.getElementById('horaRecogidaField').value;
+                detallesEntrega = `Apellido: ${apellido}\nHora de Recogida: ${horaRecogida}`;
+            }
+
+            const pedido = cart.map(item => `${item.name} x${item.quantity} ($${item.price.toLocaleString('es-CO')})`).join('\n');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            const tipoEntregaTexto = tipoEntrega === 'domicilio' ? 'A Domicilio' : 'Para Recoger';
+            const mensaje = `Hola, quiero hacer un pedido:\n\n${pedido}\n\nTotal: $${total.toLocaleString('es-CO')}\n\nCliente: ${nombre}\nTeléfono: ${telefono}\nEntrega: ${tipoEntregaTexto}\n${detallesEntrega}${notas ? '\nNotas: ' + notas : ''}`;
+
+            window.open(`https://wa.me/573132712410?text=${encodeURIComponent(mensaje)}`, '_blank');
+
+            cart = [];
+            updateCart();
+            closeCheckout();
+            showSuccessMessage();
+        }
+
+        function showSuccessMessage() {
+            const msg = document.getElementById('successMessage');
+            msg.classList.add('active');
+            setTimeout(() => msg.classList.remove('active'), 3000);
+        }
+
+        function showAddedNotification() {
+            const cartIcon = document.querySelector('.cart-icon');
+            cartIcon.style.transform = 'scale(1.2)';
+            setTimeout(() => cartIcon.style.transform = 'scale(1)', 200);
+        }
+
+        function toggleCategory(titleElement, gridId) {
+            const grid = document.getElementById(gridId);
+            titleElement.classList.toggle('collapsed');
+            grid.classList.toggle('hidden');
+        }
+
+        function selectDelivery(value) {
+            document.getElementById('tipoEntregaField').value = value;
+            document.querySelectorAll('#deliverySwitch .switch-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.value === value);
+            });
+
+            const domicilioOptions = document.getElementById('domicilioOptions');
+            const recogerOptions = document.getElementById('recogerOptions');
+
+            if (value === 'domicilio') {
+                domicilioOptions.style.display = 'block';
+                recogerOptions.style.display = 'none';
+                document.getElementById('direccionField').required = true;
+                document.getElementById('apellidoField').required = false;
+                document.getElementById('horaRecogidaField').required = false;
+            } else {
+                domicilioOptions.style.display = 'none';
+                recogerOptions.style.display = 'block';
+                document.getElementById('direccionField').required = false;
+                document.getElementById('apellidoField').required = true;
+                document.getElementById('horaRecogidaField').required = true;
+            }
+        }
+
+        // SCROLL ANIMATIONS
+        function observeElements() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.scroll-animate').forEach(el => observer.observe(el));
+        }
+
+        // INICIALIZAR
+        renderMenu();
+        observeElements();
+        initHeroScroll();
+    </script>
+</body>
+</html>
